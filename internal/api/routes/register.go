@@ -2,21 +2,14 @@ package routes
 
 import (
 	"github.com/Hemanth5603/resume-go-server/internal/api/handlers"
-	"github.com/Hemanth5603/resume-go-server/internal/repository"
-	"github.com/Hemanth5603/resume-go-server/internal/service"
+	"github.com/Hemanth5603/resume-go-server/internal/di"
 	"github.com/gofiber/fiber/v2"
 )
 
 // RegisterRoutes registers all the routes for the application
-func RegisterRoutes(app *fiber.App) {
-	// Create repositories
-	userRepo := repository.NewUserRepository()
-
-	// Create services
-	userService := service.NewUserService(userRepo)
-
+func RegisterRoutes(app *fiber.App, container *di.Container) {
 	// Create handlers
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(container.UserService)
 
 	// Group routes
 	api := app.Group("/api")

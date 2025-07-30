@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/Hemanth5603/resume-go-server/internal/database"
 	"github.com/Hemanth5603/resume-go-server/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -12,8 +11,8 @@ type UserRepository struct {
 	db *pgxpool.Pool
 }
 
-func NewUserRepository() *UserRepository {
-	return &UserRepository{db: database.GetDB()}
+func NewUserRepository(db *pgxpool.Pool) *UserRepository {
+	return &UserRepository{db: db}
 }
 
 func (r *UserRepository) CreateUserTable() error {

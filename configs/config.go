@@ -1,26 +1,29 @@
 package configs
 
 // Config holds the application configuration
-import "os"
+import (
+	"github.com/spf13/viper"
+)
 
 type Config struct {
-	Port        string
-	DatabaseURL string
+	Port        string `mapstructure:"PORT"`
+	DatabaseURL string `mapstructure:"DATABASE_URL"`
+	JWKSURL     string `mapstructure:"JWKS_URL"` // URL for JSON Web Key Set
 }
 
 // LoadConfig loads configuration from environment variables or a config file
-func LoadConfig() (*Config, error) {
-	// For now, we'll get config from environment variables
-	// In a real application, you might use a library like Viper
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = ":3000"
+func LoadConfig() (config Config, err error) {
+	viper.AddConfigPath(".")
+	viper.SetConfigName(".env")
+	viper.SetConfigType("env")
+
+	viper.AutomaticEnv()
+
+	err = viper.ReadInConfig()
+	if err != nil {
+		return
 	}
 
-	dbURL := os.Getenv("DATABASE_URL")
-
-	return &Config{
-		Port:        port,
-		DatabaseURL: dbURL,
-	}, nil
+	err = viper.Unmarshal(&config)
+	return
 }
