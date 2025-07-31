@@ -10,6 +10,7 @@ type Config struct {
 	DatabaseURL string `mapstructure:"DATABASE_URL"`
 	JWKSURL     string `mapstructure:"JWKS_URL"` // URL for JSON Web Key Set
 	JWTSecret   string
+	JWTSecret   string
 }
 
 // LoadConfig loads configuration from environment variables or a config file
