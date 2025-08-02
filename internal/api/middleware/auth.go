@@ -48,7 +48,7 @@ func ClerkAuthMiddleware() fiber.Handler {
 		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to load config"})
 		}
-		if claims["iss"] != config.JWKSURL {
+		if claims["iss"] != config.JWKSIssuer {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid token issuer"})
 		}
 

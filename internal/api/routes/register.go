@@ -2,14 +2,18 @@ package routes
 
 import (
 	"github.com/Hemanth5603/resume-go-server/internal/api/handlers"
+	"github.com/Hemanth5603/resume-go-server/internal/api/middleware"
 	"github.com/Hemanth5603/resume-go-server/internal/di"
 	"github.com/gofiber/fiber/v2"
 )
 
 // RegisterRoutes registers all the routes for the application
 func RegisterRoutes(app *fiber.App, container *di.Container) {
+
 	// Create handlers
 	userHandler := handlers.NewUserHandler(container.UserService)
+	subscriptionHandler := handlers.NewSubscriptionHandler(container.SubscriptionService)
+	mainServiceHandlers := handlers.NewMainServiceHandler(container.MainService)
 
 	// Group routes
 	api := app.Group("/api")
@@ -18,6 +22,13 @@ func RegisterRoutes(app *fiber.App, container *di.Container) {
 	// User routes
 	v1.Get("/user", userHandler.GetUser)
 	v1.Post("/user", userHandler.CreateUser)
+
+	//Subscription routes
+	v1.Post("/subscribe", middleware.ClerkAuthMiddleware(), subscriptionHandler.CreateSubscription)
+	v1.Get("/is_subscribed", middleware.ClerkAuthMiddleware(), subscriptionHandler.VerifySubscription)
+
+	//Main Service Routes
+	v1.Post("/upload", middleware.ClerkAuthMiddleware(), mainServiceHandlers.ForwardResumeAndDescriptionToModel)
 
 	// Simple health check
 	app.Get("/health", func(c *fiber.Ctx) error {
