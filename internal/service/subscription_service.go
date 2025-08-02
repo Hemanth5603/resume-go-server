@@ -5,38 +5,44 @@ import (
 	"log"
 	"time"
 
+	"github.com/Hemanth5603/resume-go-server/configs"
 	"github.com/Hemanth5603/resume-go-server/internal/model"
 	"github.com/Hemanth5603/resume-go-server/internal/repository"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 )
 
+var JWT_SECRET string
+
 type SubscriptionService interface {
 	CreateSubscription(req *model.SubscriptionRequest) (*model.Subscription, error)
+	VerifySubscription(userID string) (bool, error)
 }
 
 type subscriptionServiceImpl struct {
 	subscriptionRepo *repository.SubscriptionRepository
+	config           *configs.Config
 }
 
-func NewSubscriptionService(subscriptionRepo *repository.SubscriptionRepository) SubscriptionService {
+func NewSubscriptionService(subscriptionRepo *repository.SubscriptionRepository, config *configs.Config) SubscriptionService {
 	return &subscriptionServiceImpl{
 		subscriptionRepo: subscriptionRepo,
+		config:           config,
 	}
 }
 
+// service for creating subscription
 func (s *subscriptionServiceImpl) CreateSubscription(req *model.SubscriptionRequest) (*model.Subscription, error) {
 	// timezone, err := getTimezoneOfUser(req.UserID)
 	// if err != nil {
 	// 	return &model.Subscription{}, err
 	// }
 
+	JWT_SECRET = s.config.JWTSecret
+
 	timezone := "Asia/Kolkata"
-	log.Println(timezone)
 	subscriptionID := generateSubscriptionID()
-	log.Println(subscriptionID)
 	token, err := generateSubscriptionToken(req.UserID, req.Plan, timezone, subscriptionID)
-	log.Println(token)
 	if err != nil {
 		log.Println(err)
 		return &model.Subscription{}, err
@@ -49,11 +55,11 @@ func (s *subscriptionServiceImpl) CreateSubscription(req *model.SubscriptionRequ
 		Token:    token,
 		TimeZone: timezone,
 	}
-	log.Println(*subscription)
 	_ = s.subscriptionRepo.CreateSubscriptionTable()
 	return s.subscriptionRepo.CreateSubscription(subscription)
 }
 
+// Service for validating subscriptions
 func (s *subscriptionServiceImpl) VerifySubscription(userID string) (bool, error) {
 	subscription, err := s.subscriptionRepo.GetLatestSubscriptionOfUser(userID)
 	if err != nil {
@@ -91,7 +97,7 @@ func getUTCExpiry(tz string, plan int) (time.Time, error) {
 }
 
 func createJWTTokenForSubscription(userID string, expiryUTC time.Time, plan int, subscriptionID string) (string, error) {
-	jwtSecret := []byte("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30") //jwt secret from the env
+	jwtSecret := []byte(JWT_SECRET) //jwt secret from the env
 	claims := jwt.MapClaims{
 		"sub":             userID,
 		"exp":             expiryUTC.UTC(),
@@ -122,7 +128,7 @@ func generateSubscriptionID() string {
 }
 
 func validateSubscriptionToken(tokenStr string) (bool, error) {
-	jwtSecret := []byte("") //jwt secret from env variables
+	jwtSecret := []byte(JWT_SECRET) //jwt secret from env variables
 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, errors.New("unexpected signing method")

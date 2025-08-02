@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/Hemanth5603/resume-go-server/internal/database"
 	"github.com/Hemanth5603/resume-go-server/internal/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -12,8 +11,8 @@ type SubscriptionRepository struct {
 	db *pgxpool.Pool
 }
 
-func NewSubscriptionRepository() *SubscriptionRepository {
-	return &SubscriptionRepository{db: database.GetDB()}
+func NewSubscriptionRepository(db *pgxpool.Pool) *SubscriptionRepository {
+	return &SubscriptionRepository{db: db}
 }
 
 func (r *SubscriptionRepository) CreateSubscriptionTable() error {
@@ -59,7 +58,7 @@ func (r *SubscriptionRepository) GetLatestSubscriptionOfUser(UserID string) (*mo
 	query := `
 		SELECT id, user_id, plan, token, timezone, created_at
 		FROM subscriptions
-		WHERE user_id = ?
+		WHERE user_id = $1
 		ORDER BY created_at DESC
 		LIMIT 1;
 	`

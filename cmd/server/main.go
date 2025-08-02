@@ -24,5 +24,5 @@ func main() {
 	// Register routes
 	routes.RegisterRoutes(app, container)
 
-	log.Fatal(app.Listen(container.Config.Port))
+	log.Fatal(app.Listen(":" + container.Config.Port))
 }

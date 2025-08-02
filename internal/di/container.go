@@ -8,8 +8,9 @@ import (
 )
 
 type Container struct {
-	Config      configs.Config
-	UserService service.UserService
+	Config              configs.Config
+	UserService         service.UserService
+	SubscriptionService service.SubscriptionService
 }
 
 func NewContainer() (*Container, error) {
@@ -24,10 +25,14 @@ func NewContainer() (*Container, error) {
 	}
 
 	userRepo := repository.NewUserRepository(db)
+	subscriptionRepo := repository.NewSubscriptionRepository(db)
+
 	userService := service.NewUserService(userRepo)
+	subscriptionService := service.NewSubscriptionService(subscriptionRepo, &cfg)
 
 	return &Container{
-		Config:      cfg,
-		UserService: userService,
+		Config:              cfg,
+		UserService:         userService,
+		SubscriptionService: subscriptionService,
 	}, nil
 }
