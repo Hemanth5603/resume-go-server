@@ -11,6 +11,7 @@ type Container struct {
 	Config              configs.Config
 	UserService         service.UserService
 	SubscriptionService service.SubscriptionService
+	MainService         service.MainService
 }
 
 func NewContainer() (*Container, error) {
@@ -26,13 +27,16 @@ func NewContainer() (*Container, error) {
 
 	userRepo := repository.NewUserRepository(db)
 	subscriptionRepo := repository.NewSubscriptionRepository(db)
+	mainServiceRepo := repository.NewMainServiceRepo(db)
 
 	userService := service.NewUserService(userRepo)
 	subscriptionService := service.NewSubscriptionService(subscriptionRepo, &cfg)
+	mainService := service.NewMainService(mainServiceRepo, &cfg)
 
 	return &Container{
 		Config:              cfg,
 		UserService:         userService,
 		SubscriptionService: subscriptionService,
+		MainService:         mainService,
 	}, nil
 }

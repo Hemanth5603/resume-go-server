@@ -13,6 +13,7 @@ func RegisterRoutes(app *fiber.App, container *di.Container) {
 	// Create handlers
 	userHandler := handlers.NewUserHandler(container.UserService)
 	subscriptionHandler := handlers.NewSubscriptionHandler(container.SubscriptionService)
+	mainServiceHandlers := handlers.NewMainServiceHandler(container.MainService)
 
 	// Group routes
 	api := app.Group("/api")
@@ -25,6 +26,9 @@ func RegisterRoutes(app *fiber.App, container *di.Container) {
 	//Subscription routes
 	v1.Post("/subscribe", middleware.ClerkAuthMiddleware(), subscriptionHandler.CreateSubscription)
 	v1.Get("/is_subscribed", middleware.ClerkAuthMiddleware(), subscriptionHandler.VerifySubscription)
+
+	//Main Service Routes
+	v1.Post("/upload", middleware.ClerkAuthMiddleware(), mainServiceHandlers.ForwardResumeAndDescriptionToModel)
 
 	// Simple health check
 	app.Get("/health", func(c *fiber.Ctx) error {
