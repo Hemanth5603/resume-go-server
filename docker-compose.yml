@@ -8,8 +8,10 @@ services:
     container_name: resume-go-server
     ports:
       - "3000:3000"
-    env_file:
-      - .env
+    environment:
+      - PORT=3000
+      - DATABASE_URL=mongodb+srv://naveenpoliasetty:Naveen221003@cluster0.8jniohl.mongodb.net/resumedb?retryWrites=true&w=majority&appName=Cluster0
+      - JWKS_URL=https://trusted-toucan-17.clerk.accounts.dev/.well-known/jwks.json
     restart: unless-stopped
     networks:
       - app-network
@@ -47,4 +49,3 @@ volumes:
 networks:
   app-network:
     driver: bridge
-
