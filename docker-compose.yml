@@ -7,16 +7,16 @@ services:
       dockerfile: Dockerfile
     container_name: resume-go-server
     ports:
-      - "3000:3000"
+      - "4000:4000"
     environment:
-      - PORT=3000
+      - PORT=4000
       - DATABASE_URL=mongodb+srv://naveenpoliasetty:Naveen221003@cluster0.8jniohl.mongodb.net/resumedb?retryWrites=true&w=majority&appName=Cluster0
       - JWKS_URL=https://trusted-toucan-17.clerk.accounts.dev/.well-known/jwks.json
     restart: unless-stopped
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
       interval: 30s
       timeout: 3s
       retries: 3

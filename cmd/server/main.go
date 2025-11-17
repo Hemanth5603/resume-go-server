@@ -24,5 +24,12 @@ func main() {
 	// Register routes
 	routes.RegisterRoutes(app, container)
 
-	log.Fatal(app.Listen(container.Config.Port))
+	// Ensure port has colon prefix for Fiber
+	port := container.Config.Port
+	if port[0] != ':' {
+		port = ":" + port
+	}
+
+	log.Printf("🚀 Server starting on port %s", port)
+	log.Fatal(app.Listen(port))
 }
