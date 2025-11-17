@@ -1,0 +1,37 @@
+[Unit]
+Description=Resume Go Server
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+User=root
+WorkingDirectory=/opt/resume-server
+EnvironmentFile=/opt/resume-server/.env
+
+# Stop and remove existing container
+ExecStartPre=-/usr/bin/docker stop resume-server
+ExecStartPre=-/usr/bin/docker rm resume-server
+
+# Pull latest image (if using GCR)
+# ExecStartPre=/usr/bin/docker pull gcr.io/YOUR_PROJECT_ID/resume-go-server:latest
+
+# Start container
+ExecStart=/usr/bin/docker run --rm --name resume-server \
+  -p 3000:3000 \
+  --env-file /opt/resume-server/.env \
+  resume-go-server:latest
+
+# Stop container
+ExecStop=/usr/bin/docker stop resume-server
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=resume-server
+
+[Install]
+WantedBy=multi-user.target
+

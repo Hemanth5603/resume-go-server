@@ -1,17 +1,21 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 // User represents a user in the system
 type User struct {
-	ID              string    `json:"id"`
-	Username        string    `json:"username"`
-	Name            string    `json:"name"`
-	Email           string    `json:"email"`
-	Password        string    `json:"-"` // Do not expose password
-	ProfileImageURL string    `json:"profileImageUrl"`
-	CreatedAt       time.Time `json:"createdAt"`
-	UpdatedAt       time.Time `json:"updatedAt"`
+	ID              primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Username        string             `json:"username" bson:"username"`
+	Name            string             `json:"name" bson:"name"`
+	Email           string             `json:"email" bson:"email"`
+	Password        string             `json:"-" bson:"password"` // Do not expose password in JSON
+	ProfileImageURL string             `json:"profileImageUrl" bson:"profile_image_url,omitempty"`
+	CreatedAt       time.Time          `json:"createdAt" bson:"created_at"`
+	UpdatedAt       time.Time          `json:"updatedAt" bson:"updated_at"`
 }
 
 // CreateUserRequest defines the request body for creating a new user.

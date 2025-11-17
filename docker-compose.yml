@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resume-go-server
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - DATABASE_URL=${DATABASE_URL:-mongodb://mongo:27017/resumedb}
+      - JWKS_URL=${JWKS_URL}
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+  mongo:
+    image: mongo:7.0
+    container_name: resume-mongo
+    environment:
+      - MONGO_INITDB_DATABASE=resumedb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  mongo-data:
+  mongo-config:
+
+networks:
+  app-network:
+    driver: bridge
+

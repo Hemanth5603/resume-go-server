@@ -18,12 +18,14 @@ func NewContainer() (*Container, error) {
 		return nil, err
 	}
 
-	db, err := database.Connect(cfg.DatabaseURL)
+	// Connect to MongoDB
+	db, err := database.ConnectMongoDB(cfg.DatabaseURL)
 	if err != nil {
 		return nil, err
 	}
 
-	userRepo := repository.NewUserRepository(db)
+	// Create MongoDB repository
+	userRepo := repository.NewUserRepositoryMongo(db)
 	userService := service.NewUserService(userRepo)
 
 	return &Container{
