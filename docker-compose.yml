@@ -8,13 +8,9 @@ services:
     container_name: resume-go-server
     ports:
       - "3000:3000"
-    environment:
-      - PORT=3000
-      - DATABASE_URL=${DATABASE_URL:-mongodb://mongo:27017/resumedb}
-      - JWKS_URL=${JWKS_URL}
+    env_file:
+      - .env
     restart: unless-stopped
-    depends_on:
-      - mongo
     networks:
       - app-network
     healthcheck:
