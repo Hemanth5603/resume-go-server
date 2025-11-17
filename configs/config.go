@@ -2,6 +2,8 @@ package configs
 
 // Config holds the application configuration
 import (
+	"log"
+
 	"github.com/spf13/viper"
 )
 
@@ -17,6 +19,11 @@ func LoadConfig() (config Config, err error) {
 	viper.SetConfigName(".env")
 	viper.SetConfigType("env")
 
+	// Bind environment variables explicitly
+	viper.BindEnv("PORT")
+	viper.BindEnv("DATABASE_URL")
+	viper.BindEnv("JWKS_URL")
+
 	viper.AutomaticEnv()
 
 	// Try to read config file, but don't fail if it doesn't exist
@@ -24,5 +31,23 @@ func LoadConfig() (config Config, err error) {
 	_ = viper.ReadInConfig()
 
 	err = viper.Unmarshal(&config)
+
+	// Debug logging
+	log.Printf("Config loaded - Port: %s, DatabaseURL length: %d, JWKSURL: %s",
+		config.Port,
+		len(config.DatabaseURL),
+		config.JWKSURL)
+
+	if len(config.DatabaseURL) > 0 {
+		log.Printf("DatabaseURL starts with: %s", config.DatabaseURL[:min(50, len(config.DatabaseURL))])
+	}
+
 	return
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
